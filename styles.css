@@ -24,7 +24,7 @@ body {
 }
 
 #sidebar.collapsed {
-    transform: translateX(-200px);
+    transform: translateX(-250px);
 }
 
 #sidebar h2 {

@@ -6,25 +6,53 @@ export class ResumeHandler {
         this.world = world;
         this.experiences = [
             {
-                title: "Senior Software Engineer",
-                company: "Tech Innovations Inc",
-                period: "2020-Present",
-                description: "Led development of cloud infrastructure\nManaged team of 5 engineers\nImplemented CI/CD pipeline",
-                technologies: ["AWS", "Kubernetes", "Python", "React"]
+                title: "Software Engineer",
+                company: "Amazon Financial Foundation Service",
+                period: "Oct 2022-Present",
+                description: "Designed and rebuilt financial reconciliation system\nLed team of 5 from conception to completion\nProcessed $1B in daily transactions and 5 PB of daily data",
+                technologies: ["Financial Systems", "Big Data", "Leadership"]
             },
             {
-                title: "Full Stack Developer",
-                company: "Digital Solutions Ltd",
-                period: "2018-2020",
-                description: "Developed e-commerce platform\nOptimized database performance\nImplemented payment gateway",
-                technologies: ["Node.js", "MongoDB", "React", "Docker"]
+                title: "Software Engineer",
+                company: "AWS Managed Grafana",
+                period: "Feb 2022-Oct 2022",
+                description: "Implemented AWS Grafana workspace limit feature\nLed team of 10, establishing scrum practices\nIncreased sprint velocity by 2X",
+                technologies: ["AWS", "Grafana", "Scrum"]
+            },
+            {
+                title: "Software Engineer",
+                company: "AWS Cloudformation",
+                period: "Jan 2020-Feb 2022",
+                description: "Designed and launched Modules construct\nLed team of 6 engineers\nReduced deployment time by 70% and configuration costs by 60%",
+                technologies: ["AWS", "Cloud Infrastructure", "Leadership"]
+            },
+            {
+                title: "Software Engineer",
+                company: "Amazon Alexa",
+                period: "May 2018-Dec 2019",
+                description: "Managed high TPS backend systems for Alexa Timers\nEstablished operational best practices\nMentored team of 8, increasing productivity 4X",
+                technologies: ["Backend Systems", "High TPS", "Mentoring"]
+            },
+            {
+                title: "Software Engineer",
+                company: "Amazon Business",
+                period: "Jan 2016-April 2018",
+                description: "Launched B2B Gateway widget, increasing adoption by 50%\nLed team of 4 to launch Request For Quotes Portal\nHandled over 1000 TPS, reducing customer costs by 25%",
+                technologies: ["B2B Systems", "High TPS", "Leadership"]
             },
             {
                 title: "Software Developer",
-                company: "StartUp Ventures",
-                period: "2016-2018",
-                description: "Built mobile applications\nImplemented RESTful APIs\nManaged client relationships",
-                technologies: ["React Native", "Express.js", "PostgreSQL"]
+                company: "Myzamana Inc",
+                period: "Oct 2012-Dec 2015",
+                description: "Scaled startup from 5M to 50M monthly page views\nBuilt scalable user notification system\nLaunched in-house Redis cluster",
+                technologies: ["Scalability", "Redis", "Notification Systems"]
+            },
+            {
+                title: "Research Assistant",
+                company: "Electronic Crime Investigative Technologies, ECIT FSU",
+                period: "May 2010-Aug 2012",
+                description: "Implemented distributed web crawler using Tor\nIncreased crawling speed by 90x\nUsed by Florida Department of Law Enforcement",
+                technologies: ["Tor", "Web Crawling", "Distributed Systems"]
             }
         ];
         this.setupUI();
