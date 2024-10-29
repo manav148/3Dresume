@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 
-// Rest of the Physics implementation remains the same
 export class Physics {
     constructor() {
         this.colliders = [];
