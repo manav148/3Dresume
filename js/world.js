@@ -107,7 +107,7 @@ export class World {
         const water = new Water(waterGeometry, {
             textureWidth: 512,
             textureHeight: 512,
-            waterNormals: new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/waternormals.jpg', (texture) => {
+            waterNormals: new THREE.TextureLoader().load('https://unpkg.com/three@0.169.0/examples/textures/waternormals.jpg', (texture) => {
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
             }),
             sunDirection: new THREE.Vector3(),
@@ -148,7 +148,7 @@ export class World {
                     break;
                 case 'Space':
                     if (this.canJump) {
-                        this.velocity.y = 150; // Further reduced jump velocity
+                        this.velocity.y = 150;
                         this.canJump = false;
                     }
                     break;
@@ -178,13 +178,9 @@ export class World {
     }
 
     resetPosition() {
-        // Reset camera position to the center
         this.camera.position.set(0, 1.6, 5);
-        // Reset camera rotation to look forward
         this.controls.getObject().rotation.set(0, 0, 0);
-        // Reset velocity
         this.velocity.set(0, 0, 0);
-        // Reset movement flags
         this.moveForward = false;
         this.moveBackward = false;
         this.moveLeft = false;
@@ -199,9 +195,8 @@ export class World {
 
             this.velocity.x = 0;
             this.velocity.z = 0;
-            this.velocity.y -= 9.8 * 100.0 * delta; // Gravity remains the same
+            this.velocity.y -= 9.8 * 100.0 * delta;
 
-            // Further reduced movement speeds (from 200.0 to 100.0)
             if (this.moveForward) this.velocity.z = -50.0 * delta;
             if (this.moveBackward) this.velocity.z = 50.0 * delta;
             if (this.moveLeft) this.velocity.x = -50.0 * delta;
@@ -240,7 +235,6 @@ export class World {
     }
 
     clearOffices() {
-        // Remove each office from the scene and clear the array
         this.offices.forEach(office => {
             this.scene.remove(office.getGroup());
         });
