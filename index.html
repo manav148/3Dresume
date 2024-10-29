@@ -22,11 +22,13 @@
     <div id="sidebar">
         <button id="toggleSidebar" class="btn toggle-btn">≡</button>
         <h2>3D Resume</h2>
-        <div class="experiences-editor">
+        <div class="experiences-editor collapsed">
             <h3>Edit Experiences</h3>
-            <div id="experiences-list"></div>
-            <button id="addExperience" class="btn">Add Experience</button>
-            <button id="updateWorld" class="btn primary">Update World</button>
+            <div class="experiences-content">
+                <div id="experiences-list"></div>
+                <button id="addExperience" class="btn">Add Experience</button>
+                <button id="updateWorld" class="btn primary">Update World</button>
+            </div>
         </div>
         <div class="navigation-help">
             <h3>Navigation Controls</h3>
@@ -43,5 +45,10 @@
     <div id="loading">Loading 3D World...</div>
     <div id="scene-container"></div>
     <script type="module" src="js/main.js"></script>
+    <script>
+        document.querySelector('.experiences-editor h3').addEventListener('click', function() {
+            document.querySelector('.experiences-editor').classList.toggle('collapsed');
+        });
+    </script>
 </body>
 </html>

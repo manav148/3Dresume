@@ -63,6 +63,30 @@ body {
 .experiences-editor h3 {
     color: #34495e;
     margin-bottom: 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.experiences-editor h3::after {
+    content: '▼';
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.experiences-editor.collapsed h3::after {
+    transform: rotate(-90deg);
+}
+
+.experiences-content {
+    transition: max-height 0.3s ease-out;
+    overflow: hidden;
+    max-height: 2000px;
+}
+
+.experiences-editor.collapsed .experiences-content {
+    max-height: 0;
 }
 
 .experience-item {
