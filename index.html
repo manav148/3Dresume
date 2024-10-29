@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>3D Resume World</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "/node_modules/three/build/three.module.js",
+                "three/examples/jsm/controls/PointerLockControls": "/node_modules/three/examples/jsm/controls/PointerLockControls.js",
+                "three/examples/jsm/objects/Sky": "/node_modules/three/examples/jsm/objects/Sky.js",
+                "three/examples/jsm/objects/Water": "/node_modules/three/examples/jsm/objects/Water.js"
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="sidebar">
+        <h2>3D Resume World</h2>
+        <div class="upload-section">
+            <h3>Upload Your Resume</h3>
+            <input type="file" id="resumeUpload" accept=".pdf,.doc,.docx">
+            <label for="resumeUpload" class="upload-btn">Choose File</label>
+            <div id="fileInfo"></div>
+        </div>
+        <div class="navigation-help">
+            <h3>Navigation Controls</h3>
+            <ul>
+                <li>WASD / Arrow Keys - Move</li>
+                <li>Mouse - Look around</li>
+                <li>Space - Jump</li>
+                <li>E - Enter/Exit buildings</li>
+                <li>ESC - Release mouse</li>
+            </ul>
+        </div>
+    </div>
+    <div id="loading">Loading 3D World...</div>
+    <div id="scene-container"></div>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
