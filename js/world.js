@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from 'three/build/three.module.js';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
 import { Sky } from 'three/examples/jsm/objects/Sky';
 import { Water } from 'three/examples/jsm/objects/Water';
