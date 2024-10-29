@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>3D Resume World</title>
+    <title>3D Resume</title>
     <link rel="stylesheet" href="styles.css">
     <script type="importmap">
         {
@@ -16,12 +16,13 @@
 </head>
 <body>
     <div id="sidebar">
-        <h2>3D Resume World</h2>
-        <div class="upload-section">
-            <h3>Upload Your Resume</h3>
-            <input type="file" id="resumeUpload" accept=".pdf,.doc,.docx">
-            <label for="resumeUpload" class="upload-btn">Choose File</label>
-            <div id="fileInfo"></div>
+        <button id="toggleSidebar" class="btn toggle-btn">≡</button>
+        <h2>3D Resume</h2>
+        <div class="experiences-editor">
+            <h3>Edit Experiences</h3>
+            <div id="experiences-list"></div>
+            <button id="addExperience" class="btn">Add Experience</button>
+            <button id="updateWorld" class="btn primary">Update World</button>
         </div>
         <div class="navigation-help">
             <h3>Navigation Controls</h3>
@@ -32,6 +33,7 @@
                 <li>E - Enter/Exit buildings</li>
                 <li>ESC - Release mouse</li>
             </ul>
+            <button id="resetPosition" class="btn">Reset Position</button>
         </div>
     </div>
     <div id="loading">Loading 3D World...</div>

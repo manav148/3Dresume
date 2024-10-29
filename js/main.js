@@ -12,6 +12,18 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('loading').style.display = 'none';
         });
 
+        // Add reset position button handler
+        document.getElementById('resetPosition').addEventListener('click', () => {
+            world.resetPosition();
+        });
+
+        // Add sidebar toggle functionality
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleSidebar');
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+
         // Handle window resizing
         window.addEventListener('resize', () => world.handleResize());
     } catch (error) {

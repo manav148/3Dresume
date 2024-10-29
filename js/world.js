@@ -148,7 +148,7 @@ export class World {
                     break;
                 case 'Space':
                     if (this.canJump) {
-                        this.velocity.y = 350;
+                        this.velocity.y = 150; // Further reduced jump velocity
                         this.canJump = false;
                     }
                     break;
@@ -177,6 +177,20 @@ export class World {
         });
     }
 
+    resetPosition() {
+        // Reset camera position to the center
+        this.camera.position.set(0, 1.6, 5);
+        // Reset camera rotation to look forward
+        this.controls.getObject().rotation.set(0, 0, 0);
+        // Reset velocity
+        this.velocity.set(0, 0, 0);
+        // Reset movement flags
+        this.moveForward = false;
+        this.moveBackward = false;
+        this.moveLeft = false;
+        this.moveRight = false;
+    }
+
     animate() {
         requestAnimationFrame(() => this.animate());
 
@@ -185,12 +199,13 @@ export class World {
 
             this.velocity.x = 0;
             this.velocity.z = 0;
-            this.velocity.y -= 9.8 * 100.0 * delta;
+            this.velocity.y -= 9.8 * 100.0 * delta; // Gravity remains the same
 
-            if (this.moveForward) this.velocity.z = -400.0 * delta;
-            if (this.moveBackward) this.velocity.z = 400.0 * delta;
-            if (this.moveLeft) this.velocity.x = -400.0 * delta;
-            if (this.moveRight) this.velocity.x = 400.0 * delta;
+            // Further reduced movement speeds (from 200.0 to 100.0)
+            if (this.moveForward) this.velocity.z = -50.0 * delta;
+            if (this.moveBackward) this.velocity.z = 50.0 * delta;
+            if (this.moveLeft) this.velocity.x = -50.0 * delta;
+            if (this.moveRight) this.velocity.x = 50.0 * delta;
 
             this.controls.moveRight(this.velocity.x * delta);
             this.controls.moveForward(-this.velocity.z * delta);
@@ -222,5 +237,13 @@ export class World {
         office.getGroup().position.copy(position);
         this.scene.add(office.getGroup());
         this.offices.push(office);
+    }
+
+    clearOffices() {
+        // Remove each office from the scene and clear the array
+        this.offices.forEach(office => {
+            this.scene.remove(office.getGroup());
+        });
+        this.offices = [];
     }
 }
