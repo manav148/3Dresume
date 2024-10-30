@@ -1,25 +1,22 @@
 import * as THREE from 'three/build/three.module.js';
 
 export function createWorldObjects(world) {
-    // Buildings with company logos
-    const companies = ['Tech Corp', 'StartUp Inc', 'Innovation Labs'];
+    // Professional buildings with company logos
+    const companies = [
+        { name: 'Tech Corp', color: 0x2c3e50, logo: 'TC' },
+        { name: 'StartUp Inc', color: 0x34495e, logo: 'SI' },
+        { name: 'Innovation Labs', color: 0x2980b9, logo: 'IL' }
+    ];
+
     companies.forEach((company, index) => {
-        const building = createBuilding(company);
+        const building = createProfessionalBuilding(company);
         building.position.set(index * 30 - 30, 10, -30);
         world.scene.add(building);
-    });
 
-    // Add cafes
-    const cafePositions = [
-        { x: 20, z: 20 },
-        { x: -20, z: -20 },
-        { x: -20, z: 20 }
-    ];
-    
-    cafePositions.forEach(pos => {
-        const cafe = createCafe();
-        cafe.position.set(pos.x, 0, pos.z);
-        world.scene.add(cafe);
+        // Add direction signs pointing to buildings
+        const sign = createDirectionalSign(company.name);
+        sign.position.set(index * 30 - 30, 0, 0);
+        world.scene.add(sign);
     });
 
     // Add trees
@@ -77,7 +74,6 @@ export function createWorldObjects(world) {
         // Animate cars
         cars.forEach(car => {
             car.position.x += Math.sin(Date.now() * 0.001) * 0.1;
-            // Rotate car based on movement direction
             car.rotation.y = Math.atan2(Math.sin(Date.now() * 0.001), 0.1);
         });
 
@@ -86,132 +82,124 @@ export function createWorldObjects(world) {
     animate();
 }
 
-function createBuilding(companyName) {
+function createProfessionalBuilding(company) {
     const building = new THREE.Group();
     
-    // Building structure
-    const geometry = new THREE.BoxGeometry(10, 20, 10);
-    const material = new THREE.MeshPhongMaterial({ color: 0x808080 });
+    // Modern building structure with glass effect
+    const geometry = new THREE.BoxGeometry(12, 30, 12);
+    const material = new THREE.MeshPhongMaterial({ 
+        color: company.color,
+        shininess: 100,
+        specular: 0x333333,
+        reflectivity: 1
+    });
     const structure = new THREE.Mesh(geometry, material);
     
-    // Company logo
+    // Windows
+    const windowMaterial = new THREE.MeshPhongMaterial({
+        color: 0xadd8e6,
+        shininess: 100,
+        opacity: 0.5,
+        transparent: true
+    });
+
+    for (let y = 0; y < 8; y++) {
+        for (let x = 0; x < 4; x++) {
+            const windowGeom = new THREE.PlaneGeometry(1, 2);
+            const windowPane = new THREE.Mesh(windowGeom, windowMaterial);
+            windowPane.position.set(-4 + x * 2.5, -10 + y * 4, 6.01);
+            building.add(windowPane);
+            
+            // Add windows to other sides
+            const windowPane2 = windowPane.clone();
+            windowPane2.position.z = -6.01;
+            windowPane2.rotation.y = Math.PI;
+            building.add(windowPane2);
+            
+            const windowPane3 = windowPane.clone();
+            windowPane3.position.x = 6.01;
+            windowPane3.position.z = -4 + x * 2.5;
+            windowPane3.rotation.y = Math.PI / 2;
+            building.add(windowPane3);
+            
+            const windowPane4 = windowPane.clone();
+            windowPane4.position.x = -6.01;
+            windowPane4.position.z = -4 + x * 2.5;
+            windowPane4.rotation.y = -Math.PI / 2;
+            building.add(windowPane4);
+        }
+    }
+
+    // Company logo (larger and more prominent)
     const canvas = document.createElement('canvas');
-    canvas.width = 256;
-    canvas.height = 256;
+    canvas.width = 512;
+    canvas.height = 512;
     const context = canvas.getContext('2d');
-    context.fillStyle = 'white';
-    context.font = 'bold 32px Arial';
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, 512, 512);
+    
+    // Draw company logo
+    context.fillStyle = '#000000';
+    context.font = 'bold 72px Arial';
     context.textAlign = 'center';
-    context.fillText(companyName, 128, 128);
+    context.textBaseline = 'middle';
+    context.fillText(company.logo, 256, 256);
+    
+    // Draw company name
+    context.font = 'bold 36px Arial';
+    context.fillText(company.name, 256, 350);
     
     const logoTexture = new THREE.CanvasTexture(canvas);
-    const logoGeometry = new THREE.PlaneGeometry(8, 4);
+    const logoGeometry = new THREE.PlaneGeometry(10, 10);
     const logoMaterial = new THREE.MeshBasicMaterial({ 
         map: logoTexture,
         transparent: true
     });
     const logo = new THREE.Mesh(logoGeometry, logoMaterial);
-    logo.position.z = 5.1;
-    logo.position.y = 5;
+    logo.position.z = 6.1;
+    logo.position.y = 10;
     
     building.add(structure);
     building.add(logo);
     return building;
 }
 
-function createCafe() {
-    const cafe = new THREE.Group();
+function createDirectionalSign(companyName) {
+    const sign = new THREE.Group();
     
-    // Cafe building
-    const buildingGeometry = new THREE.BoxGeometry(8, 6, 8);
-    const buildingMaterial = new THREE.MeshPhongMaterial({ color: 0xd4a17d });
-    const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
-    building.position.y = 3;
+    // Sign post
+    const postGeometry = new THREE.CylinderGeometry(0.1, 0.1, 3, 8);
+    const postMaterial = new THREE.MeshPhongMaterial({ color: 0x4a4a4a });
+    const post = new THREE.Mesh(postGeometry, postMaterial);
+    post.position.y = 1.5;
     
-    // Cafe sign
+    // Sign board
+    const boardGeometry = new THREE.PlaneGeometry(4, 1);
     const canvas = document.createElement('canvas');
-    canvas.width = 256;
-    canvas.height = 256;
+    canvas.width = 512;
+    canvas.height = 128;
     const context = canvas.getContext('2d');
-    context.fillStyle = 'white';
+    
+    // Draw arrow and text
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, 512, 128);
+    context.fillStyle = '#000000';
     context.font = 'bold 48px Arial';
     context.textAlign = 'center';
-    context.fillText('CAFÉ', 128, 128);
+    context.textBaseline = 'middle';
+    context.fillText(`→ ${companyName}`, 256, 64);
     
-    const signTexture = new THREE.CanvasTexture(canvas);
-    const signGeometry = new THREE.PlaneGeometry(6, 2);
-    const signMaterial = new THREE.MeshBasicMaterial({ 
-        map: signTexture,
-        transparent: true
+    const texture = new THREE.CanvasTexture(canvas);
+    const boardMaterial = new THREE.MeshBasicMaterial({ 
+        map: texture,
+        side: THREE.DoubleSide
     });
-    const sign = new THREE.Mesh(signGeometry, signMaterial);
-    sign.position.set(0, 6, 4.1);
+    const board = new THREE.Mesh(boardGeometry, boardMaterial);
+    board.position.y = 2;
     
-    // Outdoor seating
-    for (let i = 0; i < 4; i++) {
-        const table = createTable();
-        table.position.set(
-            (i % 2) * 4 - 2,
-            0,
-            Math.floor(i / 2) * 4 - 6
-        );
-        cafe.add(table);
-    }
-    
-    cafe.add(building);
-    cafe.add(sign);
-    return cafe;
-}
-
-function createTable() {
-    const table = new THREE.Group();
-    
-    // Table top
-    const topGeometry = new THREE.CylinderGeometry(0.8, 0.8, 0.1, 16);
-    const topMaterial = new THREE.MeshPhongMaterial({ color: 0x8b4513 });
-    const top = new THREE.Mesh(topGeometry, topMaterial);
-    top.position.y = 0.8;
-    
-    // Table leg
-    const legGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.8, 8);
-    const leg = new THREE.Mesh(legGeometry, topMaterial);
-    leg.position.y = 0.4;
-    
-    // Chairs
-    for (let i = 0; i < 4; i++) {
-        const chair = createChair();
-        const angle = (i * Math.PI / 2);
-        chair.position.set(
-            Math.cos(angle) * 1.2,
-            0,
-            Math.sin(angle) * 1.2
-        );
-        chair.rotation.y = angle + Math.PI;
-        table.add(chair);
-    }
-    
-    table.add(top);
-    table.add(leg);
-    return table;
-}
-
-function createChair() {
-    const chair = new THREE.Group();
-    
-    // Seat
-    const seatGeometry = new THREE.BoxGeometry(0.4, 0.1, 0.4);
-    const chairMaterial = new THREE.MeshPhongMaterial({ color: 0x8b4513 });
-    const seat = new THREE.Mesh(seatGeometry, chairMaterial);
-    seat.position.y = 0.4;
-    
-    // Back
-    const backGeometry = new THREE.BoxGeometry(0.4, 0.4, 0.1);
-    const back = new THREE.Mesh(backGeometry, chairMaterial);
-    back.position.set(0, 0.6, -0.15);
-    
-    chair.add(seat);
-    chair.add(back);
-    return chair;
+    sign.add(post);
+    sign.add(board);
+    return sign;
 }
 
 function createTree() {

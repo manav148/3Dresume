@@ -3,10 +3,22 @@ import { Sky } from 'three/examples/jsm/objects/Sky';
 import { Water } from 'three/examples/jsm/objects/Water';
 
 export function createEnvironment(world) {
-    // Ground
+    // Enhanced lighting for sunny atmosphere
+    const sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
+    sunLight.position.set(100, 100, 100);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    world.scene.add(sunLight);
+
+    // Ambient light for better overall illumination
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    world.scene.add(ambientLight);
+
+    // Ground with brighter grass
     const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
     const groundMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0x1a472a,
+        color: 0x2d5a27,  // Brighter grass color
         roughness: 0.8,
         metalness: 0.2
     });
@@ -27,7 +39,7 @@ export function createEnvironment(world) {
     });
     const mainRoad = new THREE.Mesh(roadGeometry, roadMaterial);
     mainRoad.rotation.x = -Math.PI / 2;
-    mainRoad.position.y = 0.01; // Slightly above ground to prevent z-fighting
+    mainRoad.position.y = 0.01;
     world.scene.add(mainRoad);
 
     // Cross road
@@ -40,7 +52,7 @@ export function createEnvironment(world) {
     // Sidewalks
     const sidewalkGeometry = new THREE.PlaneGeometry(5, 1000);
     const sidewalkMaterial = new THREE.MeshStandardMaterial({
-        color: 0x999999,
+        color: 0xcccccc,
         roughness: 0.8
     });
 
@@ -60,12 +72,18 @@ export function createEnvironment(world) {
         world.scene.add(sidewalk);
     });
 
-    // Sky
+    // Brighter sky
     const sky = new Sky();
     sky.scale.setScalar(450000);
+    const skyUniforms = sky.material.uniforms;
+    skyUniforms['turbidity'].value = 1;
+    skyUniforms['rayleigh'].value = 0.5;
+    skyUniforms['mieCoefficient'].value = 0.005;
+    skyUniforms['mieDirectionalG'].value = 0.7;
+    skyUniforms['sunPosition'].value = new THREE.Vector3(100, 100, 100);
     world.scene.add(sky);
 
-    // Water
+    // Bluer water
     const waterGeometry = new THREE.PlaneGeometry(1000, 1000);
     const water = new Water(waterGeometry, {
         textureWidth: 512,
@@ -73,7 +91,7 @@ export function createEnvironment(world) {
         waterNormals: new THREE.TextureLoader().load('https://cdn.jsdelivr.net/npm/three@0.169.0/examples/textures/waternormals.jpg', (texture) => {
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
         }),
-        sunDirection: new THREE.Vector3(),
+        sunDirection: new THREE.Vector3(100, 100, 100),
         sunColor: 0xffffff,
         waterColor: 0x001e0f,
         distortionScale: 3.7,
