@@ -37,6 +37,29 @@ export function createEnvironment(world) {
     crossRoad.position.y = 0.01;
     world.scene.add(crossRoad);
 
+    // Sidewalks
+    const sidewalkGeometry = new THREE.PlaneGeometry(5, 1000);
+    const sidewalkMaterial = new THREE.MeshStandardMaterial({
+        color: 0x999999,
+        roughness: 0.8
+    });
+
+    // Add sidewalks along roads
+    [-12.5, 12.5].forEach(x => {
+        const sidewalk = new THREE.Mesh(sidewalkGeometry, sidewalkMaterial);
+        sidewalk.rotation.x = -Math.PI / 2;
+        sidewalk.position.set(x, 0.02, 0);
+        world.scene.add(sidewalk);
+    });
+
+    [-12.5, 12.5].forEach(z => {
+        const sidewalk = new THREE.Mesh(sidewalkGeometry, sidewalkMaterial);
+        sidewalk.rotation.x = -Math.PI / 2;
+        sidewalk.rotation.z = Math.PI / 2;
+        sidewalk.position.set(0, 0.02, z);
+        world.scene.add(sidewalk);
+    });
+
     // Sky
     const sky = new Sky();
     sky.scale.setScalar(450000);
@@ -59,23 +82,4 @@ export function createEnvironment(world) {
     water.rotation.x = -Math.PI / 2;
     water.position.y = -5;
     world.scene.add(water);
-
-    // Rainbow
-    const rainbowColors = [0xff0000, 0xff7f00, 0xffff00, 0x00ff00, 0x0000ff, 0x4b0082, 0x9400d3];
-    const rainbowRadius = 100;
-    const rainbowThickness = 2;
-    const rainbowGeometry = new THREE.TorusGeometry(rainbowRadius, rainbowThickness, 16, 100, Math.PI);
-    const rainbow = new THREE.Group();
-    
-    rainbowColors.forEach((color, i) => {
-        const material = new THREE.MeshBasicMaterial({ color: color });
-        const arch = new THREE.Mesh(rainbowGeometry, material);
-        arch.position.set(-50, 50, -100); // Position in the background
-        arch.rotation.x = Math.PI / 2;
-        arch.rotation.y = Math.PI / 6;
-        arch.position.y += i * rainbowThickness * 2;
-        rainbow.add(arch);
-    });
-    
-    world.scene.add(rainbow);
 }
