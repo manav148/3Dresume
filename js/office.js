@@ -1,4 +1,5 @@
 import * as THREE from 'three/build/three.module.js';
+import { createProfessionalBuilding } from './objects/buildings.js';
 
 export class Office {
     constructor(experience) {
@@ -8,166 +9,123 @@ export class Office {
     }
 
     createStructure() {
-        // Building
-        const buildingGeometry = new THREE.BoxGeometry(8, 12, 8);
-        const buildingMaterial = new THREE.MeshStandardMaterial({
-            color: 0xcccccc,
-            roughness: 0.7,
-            metalness: 0.2
-        });
-        const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
-        building.castShadow = true;
-        building.receiveShadow = true;
+        // Create professional building with experience data
+        const buildingData = {
+            name: this.experience.company,
+            color: this.generateCompanyColor(),
+            logo: this.experience.company.substring(0, 2).toUpperCase()
+        };
+        
+        const building = createProfessionalBuilding(buildingData);
         this.group.add(building);
 
-        // Windows
-        this.createWindows();
-
-        // Door
-        this.createDoor();
-
-        // Company Sign
-        this.createCompanySign();
-
-        // Interior
-        this.createInterior();
-    }
-
-    createWindows() {
-        const windowGeometry = new THREE.PlaneGeometry(1.5, 2);
-        const windowMaterial = new THREE.MeshStandardMaterial({
-            color: 0x87ceeb,
-            metalness: 0.9,
-            roughness: 0.1
-        });
-
-        // Front windows
-        const windowPositions = [
-            [-2, 6, 4.01], [2, 6, 4.01],  // Top row
-            [-2, 3, 4.01], [2, 3, 4.01]   // Bottom row
-        ];
-
-        windowPositions.forEach(([x, y, z]) => {
-            const window = new THREE.Mesh(windowGeometry, windowMaterial);
-            window.position.set(x, y, z);
-            this.group.add(window);
-        });
-    }
-
-    createDoor() {
-        const doorGeometry = new THREE.PlaneGeometry(2, 3);
-        const doorMaterial = new THREE.MeshStandardMaterial({
-            color: 0x4a4a4a,
-            roughness: 0.8
-        });
-        const door = new THREE.Mesh(doorGeometry, doorMaterial);
-        door.position.set(0, 1.5, 4.01);
-        this.group.add(door);
-
-        // Door handle
-        const handleGeometry = new THREE.BoxGeometry(0.2, 0.4, 0.1);
-        const handleMaterial = new THREE.MeshStandardMaterial({
-            color: 0xb87333,
-            metalness: 0.8,
-            roughness: 0.2
-        });
-        const handle = new THREE.Mesh(handleGeometry, handleMaterial);
-        handle.position.set(0.5, 1.5, 4.1);
-        this.group.add(handle);
-    }
-
-    createCompanySign() {
-        const canvas = document.createElement('canvas');
-        canvas.width = 512;
-        canvas.height = 128;
-        const ctx = canvas.getContext('2d');
-
-        // Background
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Text
-        ctx.fillStyle = '#000000';
-        ctx.font = 'bold 48px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(this.experience.company, canvas.width/2, canvas.height/2);
-
-        const texture = new THREE.CanvasTexture(canvas);
-        const signGeometry = new THREE.PlaneGeometry(4, 1);
-        const signMaterial = new THREE.MeshStandardMaterial({
-            map: texture,
-            metalness: 0.3,
-            roughness: 0.7
-        });
-        const sign = new THREE.Mesh(signGeometry, signMaterial);
-        sign.position.set(0, 9, 4.02);
-        this.group.add(sign);
-    }
-
-    createInterior() {
-        // Office walls
-        const wallGeometry = new THREE.BoxGeometry(7.5, 11.5, 0.2);
-        const wallMaterial = new THREE.MeshStandardMaterial({
-            color: 0xf5f5f5,
-            roughness: 0.9
-        });
-
-        // Back wall with experience details
-        const backWall = new THREE.Mesh(wallGeometry, wallMaterial);
-        backWall.position.set(0, 5.5, -3.5);
-        this.group.add(backWall);
-
-        // Create experience display
+        // Create experience display inside building
         this.createExperienceDisplay();
     }
 
+    generateCompanyColor() {
+        // Generate a professional color based on company name
+        const hash = this.experience.company.split('').reduce((acc, char) => {
+            return char.charCodeAt(0) + ((acc << 5) - acc);
+        }, 0);
+        
+        // Use professional color palette
+        const colors = [
+            0x2c3e50, // Dark Blue
+            0x34495e, // Darker Blue
+            0x2980b9, // Blue
+            0x3498db, // Light Blue
+            0x1abc9c, // Turquoise
+            0x16a085, // Dark Turquoise
+            0x27ae60, // Green
+            0x2ecc71  // Light Green
+        ];
+        
+        return colors[Math.abs(hash) % colors.length];
+    }
+
     createExperienceDisplay() {
+        // Create a floating display inside the building
         const canvas = document.createElement('canvas');
         canvas.width = 1024;
         canvas.height = 1024;
         const ctx = canvas.getContext('2d');
 
-        // Background
+        // Modern, professional design
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Title
+        // Title with modern styling
         ctx.fillStyle = '#2c3e50';
-        ctx.font = 'bold 48px Arial';
+        ctx.font = 'bold 64px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(this.experience.title, canvas.width/2, 100);
 
-        // Company & Period
+        // Company & Period with subtle separator
+        ctx.font = '48px Arial';
+        ctx.fillStyle = '#34495e';
+        ctx.fillText(`${this.experience.company}`, canvas.width/2, 180);
         ctx.font = '36px Arial';
-        ctx.fillText(`${this.experience.company} | ${this.experience.period}`, canvas.width/2, 180);
+        ctx.fillStyle = '#7f8c8d';
+        ctx.fillText(this.experience.period, canvas.width/2, 240);
 
-        // Description
+        // Description with bullet points and proper spacing
         ctx.font = '32px Arial';
+        ctx.fillStyle = '#2c3e50';
         ctx.textAlign = 'left';
         const lines = this.experience.description.split('\n');
         lines.forEach((line, index) => {
-            ctx.fillText(`• ${line}`, 100, 300 + index * 50);
+            // Create modern bullet points
+            ctx.fillStyle = '#3498db';
+            ctx.fillText('•', 80, 340 + index * 60);
+            
+            // Description text
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillText(line, 120, 340 + index * 60);
         });
 
-        // Technologies
-        ctx.fillStyle = '#3498db';
+        // Technologies with modern styling
+        ctx.fillStyle = '#2980b9';
         ctx.textAlign = 'center';
-        ctx.font = '36px Arial';
-        ctx.fillText('Technologies:', canvas.width/2, 600);
+        ctx.font = 'bold 40px Arial';
+        ctx.fillText('Technologies', canvas.width/2, 600);
+
+        // Create technology badges
+        const techList = this.experience.technologies;
+        const badgeWidth = 200;
+        const badgeHeight = 40;
+        const startX = (canvas.width - (badgeWidth * Math.min(3, techList.length) + 20 * (Math.min(3, techList.length) - 1))) / 2;
         
-        const techList = this.experience.technologies.join(' • ');
-        ctx.fillText(techList, canvas.width/2, 660);
+        techList.forEach((tech, index) => {
+            const row = Math.floor(index / 3);
+            const col = index % 3;
+            const x = startX + col * (badgeWidth + 20);
+            const y = 640 + row * 60;
+
+            // Badge background
+            ctx.fillStyle = '#ecf0f1';
+            ctx.beginPath();
+            ctx.roundRect(x, y, badgeWidth, badgeHeight, 20);
+            ctx.fill();
+
+            // Technology text
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = '24px Arial';
+            ctx.fillText(tech, x + badgeWidth/2, y + badgeHeight/2 + 8);
+        });
 
         const texture = new THREE.CanvasTexture(canvas);
-        const displayGeometry = new THREE.PlaneGeometry(6, 6);
+        const displayGeometry = new THREE.PlaneGeometry(8, 8);
         const displayMaterial = new THREE.MeshStandardMaterial({
             map: texture,
             metalness: 0.1,
-            roughness: 0.9
+            roughness: 0.9,
+            transparent: true,
+            opacity: 0.9
         });
         const display = new THREE.Mesh(displayGeometry, displayMaterial);
-        display.position.set(0, 5.5, -3.3);
+        // Position the display at eye level near the floor
+        display.position.set(0, 4, -3.3); // Changed from y:10 to y:4 for better viewing
         this.group.add(display);
     }
 

@@ -1,9 +1,11 @@
 import * as THREE from 'three/build/three.module.js';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
-import { Sky } from 'three/examples/jsm/objects/Sky';
-import { Water } from 'three/examples/jsm/objects/Water';
 import { Physics } from './physics.js';
 import { Office } from './office.js';
+import { createEnvironment } from './worldEnvironment.js';
+import { createWorldObjects } from './worldObjects.js';
+import { setupEventListeners } from './worldControls.js';
+import { handleAnimation } from './worldAnimation.js';
 
 export class World {
     constructor(container) {
@@ -14,8 +16,9 @@ export class World {
         this.initScene();
         this.initLights();
         this.initControls();
-        this.createEnvironment();
-        this.setupEventListeners();
+        createEnvironment(this);
+        createWorldObjects(this);
+        setupEventListeners(this);
         this.physics = new Physics();
 
         // Add some default offices
@@ -53,7 +56,7 @@ export class World {
         this.renderer.shadowMap.enabled = true;
         this.container.appendChild(this.renderer.domElement);
         
-        this.camera.position.set(0, 1.6, 5);
+        this.camera.position.set(0, 1.6, 15); // Moved back further
         this.scene.background = new THREE.Color(0x87CEEB);
     }
 
@@ -84,101 +87,8 @@ export class World {
         this.velocity = new THREE.Vector3();
     }
 
-    createEnvironment() {
-        // Ground
-        const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
-        const groundMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x1a472a,
-            roughness: 0.8,
-            metalness: 0.2
-        });
-        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-        ground.rotation.x = -Math.PI / 2;
-        ground.receiveShadow = true;
-        this.scene.add(ground);
-
-        // Sky
-        const sky = new Sky();
-        sky.scale.setScalar(450000);
-        this.scene.add(sky);
-
-        // Water
-        const waterGeometry = new THREE.PlaneGeometry(1000, 1000);
-        const water = new Water(waterGeometry, {
-            textureWidth: 512,
-            textureHeight: 512,
-            waterNormals: new THREE.TextureLoader().load('https://cdn.jsdelivr.net/npm/three@0.169.0/examples/textures/waternormals.jpg', (texture) => {
-                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-            }),
-            sunDirection: new THREE.Vector3(),
-            sunColor: 0xffffff,
-            waterColor: 0x001e0f,
-            distortionScale: 3.7,
-            fog: this.scene.fog !== undefined
-        });
-        water.rotation.x = -Math.PI / 2;
-        water.position.y = -5;
-        this.scene.add(water);
-    }
-
-    setupEventListeners() {
-        document.addEventListener('click', () => {
-            if (!this.controls.isLocked) {
-                this.controls.lock();
-            }
-        });
-
-        document.addEventListener('keydown', (event) => {
-            switch (event.code) {
-                case 'ArrowUp':
-                case 'KeyW':
-                    this.moveForward = true;
-                    break;
-                case 'ArrowDown':
-                case 'KeyS':
-                    this.moveBackward = true;
-                    break;
-                case 'ArrowLeft':
-                case 'KeyA':
-                    this.moveLeft = true;
-                    break;
-                case 'ArrowRight':
-                case 'KeyD':
-                    this.moveRight = true;
-                    break;
-                case 'Space':
-                    if (this.canJump) {
-                        this.velocity.y = 150;
-                        this.canJump = false;
-                    }
-                    break;
-            }
-        });
-
-        document.addEventListener('keyup', (event) => {
-            switch (event.code) {
-                case 'ArrowUp':
-                case 'KeyW':
-                    this.moveForward = false;
-                    break;
-                case 'ArrowDown':
-                case 'KeyS':
-                    this.moveBackward = false;
-                    break;
-                case 'ArrowLeft':
-                case 'KeyA':
-                    this.moveLeft = false;
-                    break;
-                case 'ArrowRight':
-                case 'KeyD':
-                    this.moveRight = false;
-                    break;
-            }
-        });
-    }
-
     resetPosition() {
-        this.camera.position.set(0, 1.6, 5);
+        this.camera.position.set(0, 1.6, 15);
         this.controls.getObject().rotation.set(0, 0, 0);
         this.velocity.set(0, 0, 0);
         this.moveForward = false;
@@ -189,31 +99,7 @@ export class World {
 
     animate() {
         requestAnimationFrame(() => this.animate());
-
-        if (this.controls.isLocked) {
-            const delta = 0.1;
-
-            this.velocity.x = 0;
-            this.velocity.z = 0;
-            this.velocity.y -= 9.8 * 100.0 * delta;
-
-            if (this.moveForward) this.velocity.z = -50.0 * delta;
-            if (this.moveBackward) this.velocity.z = 50.0 * delta;
-            if (this.moveLeft) this.velocity.x = -50.0 * delta;
-            if (this.moveRight) this.velocity.x = 50.0 * delta;
-
-            this.controls.moveRight(this.velocity.x * delta);
-            this.controls.moveForward(-this.velocity.z * delta);
-
-            this.camera.position.y += this.velocity.y * delta;
-
-            if (this.camera.position.y < 1.6) {
-                this.velocity.y = 0;
-                this.camera.position.y = 1.6;
-                this.canJump = true;
-            }
-        }
-
+        handleAnimation(this);
         this.renderer.render(this.scene, this.camera);
     }
 
