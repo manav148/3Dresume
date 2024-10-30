@@ -3,6 +3,7 @@ import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockCont
 import { Physics } from './physics.js';
 import { Office } from './office.js';
 import { createEnvironment } from './worldEnvironment.js';
+import { createWorldObjects } from './worldObjects.js';
 import { setupEventListeners } from './worldControls.js';
 import { handleAnimation } from './worldAnimation.js';
 
@@ -16,6 +17,7 @@ export class World {
         this.initLights();
         this.initControls();
         createEnvironment(this);
+        createWorldObjects(this);
         setupEventListeners(this);
         this.physics = new Physics();
 
@@ -86,7 +88,7 @@ export class World {
     }
 
     resetPosition() {
-        this.camera.position.set(0, 1.6, 15); // Moved back further
+        this.camera.position.set(0, 1.6, 15);
         this.controls.getObject().rotation.set(0, 0, 0);
         this.velocity.set(0, 0, 0);
         this.moveForward = false;
