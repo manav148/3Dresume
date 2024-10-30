@@ -3,8 +3,17 @@ import * as THREE from 'three/build/three.module.js';
 export function createProfessionalBuilding(company) {
     const building = new THREE.Group();
     
+    // Calculate building width based on company name
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    context.font = 'bold 36px Arial';
+    const companyNameWidth = context.measureText(company.name).width;
+    
+    // Base width is 12, increase if name is longer
+    const buildingWidth = Math.max(12, companyNameWidth / 30); // Scale down canvas width to 3D units
+    
     // Modern building structure with glass effect
-    const geometry = new THREE.BoxGeometry(12, 30, 12);
+    const geometry = new THREE.BoxGeometry(buildingWidth, 30, 12);
     const material = new THREE.MeshPhongMaterial({ 
         color: company.color || 0x2c3e50,
         shininess: 100,
@@ -13,7 +22,7 @@ export function createProfessionalBuilding(company) {
     });
     const structure = new THREE.Mesh(geometry, material);
     
-    // Windows
+    // Windows - adjust number based on building width
     const windowMaterial = new THREE.MeshPhongMaterial({
         color: 0xadd8e6,
         shininess: 100,
@@ -21,11 +30,12 @@ export function createProfessionalBuilding(company) {
         transparent: true
     });
 
+    const windowColumns = Math.max(4, Math.floor(buildingWidth / 3));
     for (let y = 0; y < 8; y++) {
-        for (let x = 0; x < 4; x++) {
+        for (let x = 0; x < windowColumns; x++) {
             const windowGeom = new THREE.PlaneGeometry(1, 2);
             const windowPane = new THREE.Mesh(windowGeom, windowMaterial);
-            windowPane.position.set(-4 + x * 2.5, -10 + y * 4, 6.01);
+            windowPane.position.set(-buildingWidth/2 + x * (buildingWidth/windowColumns) + buildingWidth/(windowColumns*2), -10 + y * 4, 6.01);
             building.add(windowPane);
             
             // Add windows to other sides
@@ -35,45 +45,22 @@ export function createProfessionalBuilding(company) {
             building.add(windowPane2);
             
             const windowPane3 = windowPane.clone();
-            windowPane3.position.x = 6.01;
-            windowPane3.position.z = -4 + x * 2.5;
+            windowPane3.position.x = buildingWidth/2 + 0.01;
+            windowPane3.position.z = -4 + x * 3;
             windowPane3.rotation.y = Math.PI / 2;
             building.add(windowPane3);
             
             const windowPane4 = windowPane.clone();
-            windowPane4.position.x = -6.01;
-            windowPane4.position.z = -4 + x * 2.5;
+            windowPane4.position.x = -buildingWidth/2 - 0.01;
+            windowPane4.position.z = -4 + x * 3;
             windowPane4.rotation.y = -Math.PI / 2;
             building.add(windowPane4);
         }
     }
 
-    // Create scrolling company logo
-    const logoGroup = createScrollingLogo(company);
-    building.add(logoGroup);
-    
-    building.add(structure);
-    return building;
-}
-
-function createScrollingLogo(company) {
-    const logoGroup = new THREE.Group();
-    const canvas = document.createElement('canvas');
+    // Company logo
     canvas.width = 512;
     canvas.height = 512;
-    const context = canvas.getContext('2d');
-
-    // Test text width
-    context.font = 'bold 36px Arial';
-    const companyNameWidth = context.measureText(company.name).width;
-    const needsScroll = companyNameWidth > 400; // threshold for scrolling
-
-    // Create larger canvas if scrolling needed
-    if (needsScroll) {
-        canvas.width = 1024; // double width for scrolling
-    }
-
-    // Draw background
     context.fillStyle = '#ffffff';
     context.fillRect(0, 0, canvas.width, canvas.height);
     
@@ -82,20 +69,15 @@ function createScrollingLogo(company) {
     context.font = 'bold 72px Arial';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
-    context.fillText(company.logo || company.name.substring(0, 2), canvas.width/4, 256);
+    context.fillText(company.logo || company.name.substring(0, 2), 256, 256);
     
     // Draw company name
     context.font = 'bold 36px Arial';
-    if (needsScroll) {
-        // Draw text twice for seamless scrolling
-        context.fillText(company.name, canvas.width/4, 350);
-        context.fillText(company.name, (canvas.width * 3)/4, 350);
-    } else {
-        context.fillText(company.name, canvas.width/2, 350);
-    }
+    context.fillText(company.name, 256, 350);
     
     const logoTexture = new THREE.CanvasTexture(canvas);
-    const logoGeometry = new THREE.PlaneGeometry(10, 10);
+    // Make logo width proportional to building width
+    const logoGeometry = new THREE.PlaneGeometry(buildingWidth - 2, 10);
     const logoMaterial = new THREE.MeshBasicMaterial({ 
         map: logoTexture,
         transparent: true
@@ -103,21 +85,10 @@ function createScrollingLogo(company) {
     const logo = new THREE.Mesh(logoGeometry, logoMaterial);
     logo.position.z = 6.1;
     logo.position.y = 10;
-
-    if (needsScroll) {
-        // Add animation
-        const animate = () => {
-            logoTexture.offset.x += 0.001;
-            if (logoTexture.offset.x > 0.5) {
-                logoTexture.offset.x = 0;
-            }
-            requestAnimationFrame(animate);
-        };
-        animate();
-    }
     
-    logoGroup.add(logo);
-    return logoGroup;
+    building.add(structure);
+    building.add(logo);
+    return building;
 }
 
 export function createDirectionalSign(companyName) {
@@ -129,22 +100,17 @@ export function createDirectionalSign(companyName) {
     const post = new THREE.Mesh(postGeometry, postMaterial);
     post.position.y = 1.5;
     
-    // Sign board
-    const boardGeometry = new THREE.PlaneGeometry(4, 1);
+    // Calculate sign width based on text
     const canvas = document.createElement('canvas');
-    canvas.width = 512;
-    canvas.height = 128;
     const context = canvas.getContext('2d');
-    
-    // Test text width
     context.font = 'bold 48px Arial';
     const textWidth = context.measureText(`→ ${companyName}`).width;
-    const needsScroll = textWidth > 400; // threshold for scrolling
-
-    // Create larger canvas if scrolling needed
-    if (needsScroll) {
-        canvas.width = 1024; // double width for scrolling
-    }
+    const signWidth = Math.max(4, textWidth / 100); // Scale down canvas width to 3D units
+    
+    // Sign board
+    const boardGeometry = new THREE.PlaneGeometry(signWidth, 1);
+    canvas.width = 512;
+    canvas.height = 128;
     
     // Draw background
     context.fillStyle = '#ffffff';
@@ -155,14 +121,7 @@ export function createDirectionalSign(companyName) {
     context.font = 'bold 48px Arial';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
-    
-    if (needsScroll) {
-        // Draw text twice for seamless scrolling
-        context.fillText(`→ ${companyName}`, canvas.width/4, 64);
-        context.fillText(`→ ${companyName}`, (canvas.width * 3)/4, 64);
-    } else {
-        context.fillText(`→ ${companyName}`, canvas.width/2, 64);
-    }
+    context.fillText(`→ ${companyName}`, canvas.width/2, 64);
     
     const texture = new THREE.CanvasTexture(canvas);
     const boardMaterial = new THREE.MeshBasicMaterial({ 
@@ -171,18 +130,6 @@ export function createDirectionalSign(companyName) {
     });
     const board = new THREE.Mesh(boardGeometry, boardMaterial);
     board.position.y = 2;
-
-    if (needsScroll) {
-        // Add animation
-        const animate = () => {
-            texture.offset.x += 0.001;
-            if (texture.offset.x > 0.5) {
-                texture.offset.x = 0;
-            }
-            requestAnimationFrame(animate);
-        };
-        animate();
-    }
     
     sign.add(post);
     sign.add(board);
