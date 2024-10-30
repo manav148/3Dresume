@@ -48,23 +48,51 @@ export function createProfessionalBuilding(company) {
         }
     }
 
-    // Company logo
+    // Create scrolling company logo
+    const logoGroup = createScrollingLogo(company);
+    building.add(logoGroup);
+    
+    building.add(structure);
+    return building;
+}
+
+function createScrollingLogo(company) {
+    const logoGroup = new THREE.Group();
     const canvas = document.createElement('canvas');
     canvas.width = 512;
     canvas.height = 512;
     const context = canvas.getContext('2d');
+
+    // Test text width
+    context.font = 'bold 36px Arial';
+    const companyNameWidth = context.measureText(company.name).width;
+    const needsScroll = companyNameWidth > 400; // threshold for scrolling
+
+    // Create larger canvas if scrolling needed
+    if (needsScroll) {
+        canvas.width = 1024; // double width for scrolling
+    }
+
+    // Draw background
     context.fillStyle = '#ffffff';
-    context.fillRect(0, 0, 512, 512);
+    context.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Draw company logo and name
+    // Draw company logo
     context.fillStyle = '#000000';
     context.font = 'bold 72px Arial';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
-    context.fillText(company.logo || company.name.substring(0, 2), 256, 256);
+    context.fillText(company.logo || company.name.substring(0, 2), canvas.width/4, 256);
     
+    // Draw company name
     context.font = 'bold 36px Arial';
-    context.fillText(company.name, 256, 350);
+    if (needsScroll) {
+        // Draw text twice for seamless scrolling
+        context.fillText(company.name, canvas.width/4, 350);
+        context.fillText(company.name, (canvas.width * 3)/4, 350);
+    } else {
+        context.fillText(company.name, canvas.width/2, 350);
+    }
     
     const logoTexture = new THREE.CanvasTexture(canvas);
     const logoGeometry = new THREE.PlaneGeometry(10, 10);
@@ -75,10 +103,21 @@ export function createProfessionalBuilding(company) {
     const logo = new THREE.Mesh(logoGeometry, logoMaterial);
     logo.position.z = 6.1;
     logo.position.y = 10;
+
+    if (needsScroll) {
+        // Add animation
+        const animate = () => {
+            logoTexture.offset.x += 0.001;
+            if (logoTexture.offset.x > 0.5) {
+                logoTexture.offset.x = 0;
+            }
+            requestAnimationFrame(animate);
+        };
+        animate();
+    }
     
-    building.add(structure);
-    building.add(logo);
-    return building;
+    logoGroup.add(logo);
+    return logoGroup;
 }
 
 export function createDirectionalSign(companyName) {
@@ -97,14 +136,33 @@ export function createDirectionalSign(companyName) {
     canvas.height = 128;
     const context = canvas.getContext('2d');
     
-    // Draw arrow and text
+    // Test text width
+    context.font = 'bold 48px Arial';
+    const textWidth = context.measureText(`→ ${companyName}`).width;
+    const needsScroll = textWidth > 400; // threshold for scrolling
+
+    // Create larger canvas if scrolling needed
+    if (needsScroll) {
+        canvas.width = 1024; // double width for scrolling
+    }
+    
+    // Draw background
     context.fillStyle = '#ffffff';
-    context.fillRect(0, 0, 512, 128);
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw text
     context.fillStyle = '#000000';
     context.font = 'bold 48px Arial';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
-    context.fillText(`→ ${companyName}`, 256, 64);
+    
+    if (needsScroll) {
+        // Draw text twice for seamless scrolling
+        context.fillText(`→ ${companyName}`, canvas.width/4, 64);
+        context.fillText(`→ ${companyName}`, (canvas.width * 3)/4, 64);
+    } else {
+        context.fillText(`→ ${companyName}`, canvas.width/2, 64);
+    }
     
     const texture = new THREE.CanvasTexture(canvas);
     const boardMaterial = new THREE.MeshBasicMaterial({ 
@@ -113,6 +171,18 @@ export function createDirectionalSign(companyName) {
     });
     const board = new THREE.Mesh(boardGeometry, boardMaterial);
     board.position.y = 2;
+
+    if (needsScroll) {
+        // Add animation
+        const animate = () => {
+            texture.offset.x += 0.001;
+            if (texture.offset.x > 0.5) {
+                texture.offset.x = 0;
+            }
+            requestAnimationFrame(animate);
+        };
+        animate();
+    }
     
     sign.add(post);
     sign.add(board);
