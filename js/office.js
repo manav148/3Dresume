@@ -124,7 +124,8 @@ export class Office {
             opacity: 0.9
         });
         const display = new THREE.Mesh(displayGeometry, displayMaterial);
-        display.position.set(0, 10, -3.3);
+        // Position the display at eye level near the floor
+        display.position.set(0, 4, -3.3); // Changed from y:10 to y:4 for better viewing
         this.group.add(display);
     }
 
