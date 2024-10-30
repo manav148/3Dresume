@@ -4,24 +4,6 @@ import { createTree } from './objects/environment.js';
 import { createCar, createPedestrian, createDogWalker } from './objects/characters.js';
 
 export function createWorldObjects(world) {
-    // Professional buildings with company logos
-    const companies = [
-        { name: 'Tech Corp', color: 0x2c3e50, logo: 'TC' },
-        { name: 'StartUp Inc', color: 0x34495e, logo: 'SI' },
-        { name: 'Innovation Labs', color: 0x2980b9, logo: 'IL' }
-    ];
-
-    companies.forEach((company, index) => {
-        const building = createProfessionalBuilding(company);
-        building.position.set(index * 30 - 30, 10, -30);
-        world.scene.add(building);
-
-        // Add direction signs pointing to buildings
-        const sign = createDirectionalSign(company.name);
-        sign.position.set(index * 30 - 30, 0, 0);
-        world.scene.add(sign);
-    });
-
     // Add trees
     for (let i = 0; i < 20; i++) {
         const tree = createTree();
