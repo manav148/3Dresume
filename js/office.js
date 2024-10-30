@@ -5,11 +5,13 @@ export class Office {
     constructor(experience) {
         this.experience = experience;
         this.group = new THREE.Group();
+        this.scrollOffset = 0;
+        this.needsScroll = false;
         this.createStructure();
+        this.animate();
     }
 
     createStructure() {
-        // Create professional building with experience data
         const buildingData = {
             name: this.experience.company,
             color: this.generateCompanyColor(),
@@ -18,79 +20,104 @@ export class Office {
         
         const building = createProfessionalBuilding(buildingData);
         this.group.add(building);
-
-        // Create experience display inside building
         this.createExperienceDisplay();
     }
 
     generateCompanyColor() {
-        // Generate a professional color based on company name
         const hash = this.experience.company.split('').reduce((acc, char) => {
             return char.charCodeAt(0) + ((acc << 5) - acc);
         }, 0);
         
-        // Use professional color palette
         const colors = [
-            0x2c3e50, // Dark Blue
-            0x34495e, // Darker Blue
-            0x2980b9, // Blue
-            0x3498db, // Light Blue
-            0x1abc9c, // Turquoise
-            0x16a085, // Dark Turquoise
-            0x27ae60, // Green
-            0x2ecc71  // Light Green
+            0x2c3e50, 0x34495e, 0x2980b9, 0x3498db,
+            0x1abc9c, 0x16a085, 0x27ae60, 0x2ecc71
         ];
         
         return colors[Math.abs(hash) % colors.length];
     }
 
     createExperienceDisplay() {
-        // Create a floating display inside the building
         const canvas = document.createElement('canvas');
         canvas.width = 1024;
         canvas.height = 1024;
         const ctx = canvas.getContext('2d');
 
-        // Modern, professional design
+        // Store canvas and context for animation
+        this.canvas = canvas;
+        this.ctx = ctx;
+        
+        // Create the display mesh
+        const texture = new THREE.CanvasTexture(canvas);
+        const displayGeometry = new THREE.PlaneGeometry(8, 8);
+        const displayMaterial = new THREE.MeshStandardMaterial({
+            map: texture,
+            metalness: 0.1,
+            roughness: 0.9,
+            transparent: true,
+            opacity: 0.9
+        });
+        this.display = new THREE.Mesh(displayGeometry, displayMaterial);
+        this.display.position.set(0, 4, -3.3);
+        this.group.add(this.display);
+
+        // Initial render
+        this.renderContent();
+    }
+
+    renderContent() {
+        const ctx = this.ctx;
+        const canvas = this.canvas;
+
+        // Clear canvas
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Title with modern styling
+        // Title
         ctx.fillStyle = '#2c3e50';
         ctx.font = 'bold 64px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(this.experience.title, canvas.width/2, 100);
+        const titleX = canvas.width/2 + this.scrollOffset;
+        ctx.fillText(this.experience.title, titleX, 100);
 
-        // Company & Period with subtle separator
+        // Company & Period
         ctx.font = '48px Arial';
         ctx.fillStyle = '#34495e';
-        ctx.fillText(`${this.experience.company}`, canvas.width/2, 180);
+        const companyX = canvas.width/2 + this.scrollOffset;
+        ctx.fillText(this.experience.company, companyX, 180);
+        
         ctx.font = '36px Arial';
         ctx.fillStyle = '#7f8c8d';
-        ctx.fillText(this.experience.period, canvas.width/2, 240);
+        const periodX = canvas.width/2 + this.scrollOffset;
+        ctx.fillText(this.experience.period, periodX, 240);
 
-        // Description with bullet points and proper spacing
+        // Description
         ctx.font = '32px Arial';
         ctx.fillStyle = '#2c3e50';
         ctx.textAlign = 'left';
         const lines = this.experience.description.split('\n');
         lines.forEach((line, index) => {
-            // Create modern bullet points
+            const lineX = 120 + this.scrollOffset;
             ctx.fillStyle = '#3498db';
-            ctx.fillText('•', 80, 340 + index * 60);
+            ctx.fillText('•', 80 + this.scrollOffset, 340 + index * 60);
             
-            // Description text
             ctx.fillStyle = '#2c3e50';
-            ctx.fillText(line, 120, 340 + index * 60);
+            ctx.fillText(line, lineX, 340 + index * 60);
+
+            // Check if text needs scrolling
+            const textWidth = ctx.measureText(line).width;
+            if (textWidth > canvas.width - 240) { // 240 is padding
+                this.needsScroll = true;
+            }
         });
 
-        // Technologies with modern styling
+        // Technologies
         ctx.fillStyle = '#2980b9';
         ctx.textAlign = 'center';
         ctx.font = 'bold 40px Arial';
-        ctx.fillText('Technologies', canvas.width/2, 600);
+        const techTitleX = canvas.width/2 + this.scrollOffset;
+        ctx.fillText('Technologies', techTitleX, 600);
 
-        // Create technology badges
+        // Technology badges
         const techList = this.experience.technologies;
         const badgeWidth = 200;
         const badgeHeight = 40;
@@ -99,7 +126,7 @@ export class Office {
         techList.forEach((tech, index) => {
             const row = Math.floor(index / 3);
             const col = index % 3;
-            const x = startX + col * (badgeWidth + 20);
+            const x = startX + col * (badgeWidth + 20) + this.scrollOffset;
             const y = 640 + row * 60;
 
             // Badge background
@@ -112,21 +139,34 @@ export class Office {
             ctx.fillStyle = '#2c3e50';
             ctx.font = '24px Arial';
             ctx.fillText(tech, x + badgeWidth/2, y + badgeHeight/2 + 8);
+
+            // Check if badges need scrolling
+            const totalWidth = startX + (techList.length * (badgeWidth + 20));
+            if (totalWidth > canvas.width) {
+                this.needsScroll = true;
+            }
         });
 
-        const texture = new THREE.CanvasTexture(canvas);
-        const displayGeometry = new THREE.PlaneGeometry(8, 8);
-        const displayMaterial = new THREE.MeshStandardMaterial({
-            map: texture,
-            metalness: 0.1,
-            roughness: 0.9,
-            transparent: true,
-            opacity: 0.9
-        });
-        const display = new THREE.Mesh(displayGeometry, displayMaterial);
-        // Position the display at eye level near the floor
-        display.position.set(0, 4, -3.3); // Changed from y:10 to y:4 for better viewing
-        this.group.add(display);
+        // Update texture
+        this.display.material.map.needsUpdate = true;
+    }
+
+    animate() {
+        if (this.needsScroll) {
+            // Calculate scroll amount
+            this.scrollOffset -= 0.5;
+            
+            // Reset scroll when content has fully scrolled
+            if (Math.abs(this.scrollOffset) > this.canvas.width) {
+                this.scrollOffset = 0;
+            }
+            
+            // Render updated content
+            this.renderContent();
+        }
+        
+        // Continue animation loop
+        requestAnimationFrame(() => this.animate());
     }
 
     getGroup() {
