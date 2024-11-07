@@ -4,7 +4,7 @@ export function handleAnimation(world) {
 
         world.velocity.x = 0;
         world.velocity.z = 0;
-        world.velocity.y -= 9.8 * 100.0 * delta;
+        world.velocity.y -= 9.8 * 20.0 * delta;
 
         if (world.moveForward) world.velocity.z = -50.0 * delta;
         if (world.moveBackward) world.velocity.z = 50.0 * delta;
