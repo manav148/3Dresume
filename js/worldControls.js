@@ -25,7 +25,7 @@ export function setupEventListeners(world) {
                 break;
             case 'Space':
                 if (world.canJump) {
-                    world.velocity.y = 150;
+                    world.velocity.y = 50;
                     world.canJump = false;
                 }
                 break;
